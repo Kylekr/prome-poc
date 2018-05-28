@@ -1,0 +1,35 @@
+image:
+  repository: grafana/grafana
+  tag: 5.0.2
+
+persistence:
+  enabled: true
+  storageClassName: ibmc-file-retain-bronze
+  accessModes:
+    - ReadWriteOnce
+  size: 20Gi
+
+service:
+  type: NodePort
+  nodePort: 31009
+
+grafana.ini:
+  smtp:
+    enabled: true
+    host: smtp.gmail.com:587
+    user: grafanatestsec@gmail.com
+    password: testsec!1
+    cert_file:
+    key_file: 
+    skip_verify: true
+    from_address: grafanatestsec@gmail.com
+  server:
+    root_url: http://grafana.first-cluster.jp-tok.containers.mybluemix.net
+  email:
+    welcome_email_on_sign_up: ture
+    templates_pattern: emails/*.html
+
+security:
+  admin_user: admin
+  admin_password: admin 
+

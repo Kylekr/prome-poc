@@ -1,0 +1,59 @@
+alertmanager:
+  ingress:
+    enabled: true
+    hosts:
+      - alertmanager.final-cluster.jp-tok.containers.mybluemix.net
+  persistentVolume:
+    storageClass: ibmc-file-retain-bronze
+
+alertmanagerFiles:
+  alertmanager.yml:
+    global:
+      slack_api_url: 'https://hooks.slack.com/services/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'
+
+    route:
+      receiver: 'slack-notifications'
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 3h
+      routes:
+      - receiver: 'slack-notifications'
+        group_wait: 10s
+
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+        - channel: '#alert-manager-sec'
+          send_resolved: true
+
+server:
+  ingress:
+    enabled: true
+    hosts:
+      - prometheus.final-cluster.jp-tok.containers.mybluemix.net
+  persistentVolume:
+    storageClass: ibmc-file-retain-bronze
+
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+    - job_name: prometheus
+      static_configs:
+        - targets:
+          - localhost:9090
+    - job_name: mysql_exporter
+      scrape_interval: 1m
+      metrics_path: /metrics
+      static_configs:
+        - targets: ['prometheus1.seoul01.jp-tok.containers.mybluemix.net:32206']
+    - job_name: mysql_exporter2
+      scrape_interval: 1m
+      metrics_path: /metrics
+      static_configs:
+        - targets: ['169.56.164.124:32116']
+    - job_name: dy_exporter
+      scrape_interval: 1m
+      metrics_path: /metrics
+      static_configs:
+        - targets: ['169.56.109.198:9100']
+

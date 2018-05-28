@@ -1,0 +1,87 @@
+image:
+  repository: grafana/grafana
+  tag: 5.0.4
+  pullPolicy: IfNotPresent
+
+persistence:
+  enabled: true
+  storageClassName: ibmc-file-gold
+  accessModes:
+    - ReadWriteOnce
+  size: 20Gi
+
+replicas: 1
+
+deploymentStrategy: RollingUpdate
+
+grafana.ini:
+  smtp:
+    enabled: true
+    host: smtp.gmail.com:587
+    user: grafanatestsec@gmail.com
+    password: testsec!1
+    cert_file:
+    key_file:
+    skip_verify: true
+    from_address: grafanatestsec@gmail.com
+  server:
+    root_url: http://grafana1.kyle1-cluster.jp-tok.containers.mybluemix.net
+  email:
+    welcome_email_on_sign_up: ture
+    templates_pattern: emails/*.html
+  users:
+    allow_sign_up: true
+    allow_org_create: true
+#  auth.ldap:
+#    enabled: true
+#    allow_sign_up: true
+#    config_file: /etc/grafana/ldap.toml
+
+ingress:
+  enabled: true
+  hosts:
+    - grafana1.kyle1-cluster.jp-tok.containers.mybluemix.net
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    deleteDatasources:
+      - name: Prometheus
+        orgId: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://169.56.164.103:31012
+      isDefault: true
+
+downloadDashboardsImage:
+  repository: appropriate/curl
+  tag: latest
+  pullPolicy: IfNotPresent
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+      - path: /var/lib/grafana/dashboards
+
+dashboards:
+  prometheus-stats:
+    gnetId: 2
+    revision: 2
+    datasource: Prometheus
+
+adminUser: admin
+adminPassword: admin
+
+plugins: "satellogic-3d-globe-panel,grafana-worldmap-panel"
+
